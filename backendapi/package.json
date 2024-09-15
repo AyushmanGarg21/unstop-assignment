@@ -1,0 +1,15 @@
+{
+  "name": "backendapi",
+  "version": "1.0.0",
+  "description": "backend apis for ticket booking system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "AyushmanGarg21",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0",
+    "mongoose": "^8.6.2"
+  }
+}
