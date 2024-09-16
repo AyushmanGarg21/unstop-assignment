@@ -2,39 +2,49 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule],
+  imports: [ HttpClientModule,RouterOutlet, CommonModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent implements OnInit {
-  title = 'frontend';
+  title = 'train-booking';
   numOfSeats: number = 0; // Input for number of seats to book
   seatsArrayLeft: number[] = [];
   seatsArrayRight: number[] = [];
 
+  http: any;
+  constructor(http: HttpClient) { 
+    this.http = http;
+  };
+
   ngOnInit(): void {
-    this.getCurrentBookedSeat();
+    this.getCurrentBookedSeat(); // Fetch the current seat statuses when the component loads
   }
 
-  // Simulate fetching seat data from the backend
+  // Fetch current seat status from the backend
   getCurrentBookedSeat(): void {
-    // Simulated backend response with 80 seat states (1 = booked, 0 = available)
-    const backendSeatData: number[] = Array(80).fill(0).map(() => Math.round(Math.random())); // For example purpose
+    this.http.get(`${environment.apiUrl}/seats`).subscribe(
+      (backendSeatData:any) => {
+        this.seatsArrayLeft = [];
+        this.seatsArrayRight = [];
 
-    // Fill seatsArrayLeft and seatsArrayRight based on row logic
-    this.seatsArrayLeft = [];
-    this.seatsArrayRight = [];
-
-    for (let i = 0; i < 80; i += 7) {
-      // Push first 4 seats of the row to the left side
-      this.seatsArrayLeft.push(...backendSeatData.slice(i, i + 4));
-      // Push the remaining 3 seats of the row to the right side
-      this.seatsArrayRight.push(...backendSeatData.slice(i + 4, i + 7));
-    }
+        // Fill seatsArrayLeft and seatsArrayRight based on row logic
+        for (let i = 0; i < 80; i += 7) {
+          this.seatsArrayLeft.push(...backendSeatData.slice(i, i + 4)); // First 4 seats for left
+          this.seatsArrayRight.push(...backendSeatData.slice(i + 4, i + 7)); // Next 3 seats for right
+        }
+      },
+      (error:any) => {
+        console.error('Error fetching seat data:', error);
+      }
+    );
   }
 
   // Validate number of seats to book
@@ -50,26 +60,33 @@ export class AppComponent implements OnInit {
     return true;
   }
 
-  // Simulate backend booking
-  bookSeatsBackend(): void {
-    // Simulated backend booking
-    // For example purpose
-    this.seatsArrayLeft = this.seatsArrayLeft.map((seat) => seat === 0 ? 1 : seat);
-    this.seatsArrayRight = this.seatsArrayRight.map((seat) => seat === 0 ? 1 : seat);
-  }
-
-  // When user clicks "Book" button
+  // Book seats through the backend
   bookSeats() {
     if (this.bookSeatsValidation()) {
-      this.bookSeatsBackend();
-      alert(`Booking ${this.numOfSeats} seat(s) - This will be done via backend.`);
-      this.getCurrentBookedSeat();
+      this.http.post(`${environment.apiUrl}/book`, { numOfSeats: this.numOfSeats }).subscribe(
+        (response: any) => {
+          alert(`Seats booked: ${response.bookedSeats.join(', ')}`);
+          this.getCurrentBookedSeat(); // Refresh the seat statuses after booking
+        },
+        (error:any) => {
+          alert(error.error.message);
+          console.error('Error booking seats:', error);
+        }
+      );
     }
   }
 
+  // Vacate all seats through the backend
   vacateAllSeats() {
-    this.seatsArrayLeft = Array(44).fill(0); // Reset all left-side seats to available (0)
-    this.seatsArrayRight = Array(36).fill(0); // Reset all right-side seats to available (0)
-    alert('All seats have been vacated.');
+    this.http.post(`${environment.apiUrl}/vacate`, {}).subscribe(
+      () => {
+        alert('All seats have been vacated.');
+        this.getCurrentBookedSeat(); // Refresh the seat statuses after vacating
+      },
+      (error : any) => {
+        alert(error.error.message);
+        console.error('Error vacating seats:', error);
+      }
+    );
   }
 }
