@@ -3,7 +3,8 @@
     <div class="left-side">
       <div class="seat-grid-left">
         <div
-          [ngClass]="seat === 0 ? 'seat' : 'seat-selected'"
+          class="seat"
+          [ngClass]="seat === 0 ? 'seat-vacant' : 'seat-selected'"
           *ngFor="let seat of seatsArrayLeft"
         >
           <div class="seat-image">
@@ -20,7 +21,8 @@
     <div class="right-side">
       <div class="seat-grid-right">
         <div
-          [ngClass]="seat === 0 ? 'seat' : 'seat-selected'"
+          class="seat"
+          [ngClass]="seat === 0 ? 'seat-vacant' : 'seat-selected'"
           *ngFor="let seat of seatsArrayRight"
         >
           <div class="seat-image">
