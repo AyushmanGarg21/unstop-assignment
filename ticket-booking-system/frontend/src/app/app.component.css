@@ -30,6 +30,14 @@
     max-width: 700px;
   }
 
+  .loading {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
 .seat-grid-left {
     display: grid;
     grid-template-columns: repeat(4, 70px);

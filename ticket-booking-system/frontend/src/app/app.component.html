@@ -1,9 +1,16 @@
-<main class="main">
+
+<!--  Loading message div  -->
+<div *ngIf="isLoading" class="loading">
+  <img src="assets/loading.gif" alt="....."  width = "100px" height = "100px"/>
+  <p>please wait for server to respond...</p>
+</div>
+
+
+<main *ngIf="!isLoading" class="main">
 <!--  content div is for seat display layout  -->
   <div class="content">
 
     <!-- Left side grid  -->
-
     <div class="left-side">
       <div class="seat-grid-left">
         <div
@@ -45,10 +52,8 @@
       </div>
     </div>
   </div>
-
   <!--  divider  -->
   <div class="divider" role="separator" aria-label="Divider"></div>
-
   <!--  Form layout  -->
   <div class="booking-form">
     <form (ngSubmit)="bookSeats()">

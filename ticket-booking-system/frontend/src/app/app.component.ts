@@ -16,6 +16,7 @@ import { environment } from '../environments/environment';
 export class AppComponent implements OnInit {
   title = 'train-booking';
   numOfSeats: number = 0; // Input for number of seats to book
+  isLoading: boolean = true; // Loading state for all API calls
   seatsArrayLeft: number[] = []; // Array to store seat statuses for left side
   seatsArrayRight: number[] = []; // Array to store seat statuses for right side
 
@@ -34,6 +35,7 @@ export class AppComponent implements OnInit {
       (backendSeatData:any) => {
         this.seatsArrayLeft = [];
         this.seatsArrayRight = [];
+        this.isLoading = false;
 
         // Fill seatsArrayLeft and seatsArrayRight based on row logic
         for (let i = 0; i < 80; i += 7) {
@@ -42,7 +44,8 @@ export class AppComponent implements OnInit {
         }
       },
       (error:any) => {
-        console.error('Error fetching seat data:', error);
+        console.error('Error fetching seat data:',error.error.message);
+        this.isLoading = false;
       }
     );
   }
@@ -66,6 +69,7 @@ export class AppComponent implements OnInit {
       this.http.post(`${environment.apiUrl}/book`, { numOfSeats: this.numOfSeats }).subscribe(
         (response: any) => {
           alert(`Seats booked: ${response.bookedSeats.join(', ')}`);
+          this.isLoading = false;
           this.getCurrentBookedSeat(); // Refresh the seat statuses after booking
         },
         (error:any) => {
