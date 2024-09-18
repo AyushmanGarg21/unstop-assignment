@@ -1,5 +1,9 @@
 <main class="main">
+<!--  content div is for seat display layout  -->
   <div class="content">
+
+    <!-- Left side grid  -->
+
     <div class="left-side">
       <div class="seat-grid-left">
         <div
@@ -7,6 +11,7 @@
           [ngClass]="seat === 0 ? 'seat-vacant' : 'seat-selected'"
           *ngFor="let seat of seatsArrayLeft"
         >
+        <!--  initilizing seats based on backend data  -->
           <div class="seat-image">
             <img
               [src]="seat === 0 ? 'assets/sofa.png' : 'assets/sofa_booked.png'"
@@ -17,7 +22,10 @@
         </div>
       </div>
     </div>
+    <!--  divider  -->
     <div class="divider" role="separator" aria-label="Divider"></div>
+
+    <!--  Right side grid  -->
     <div class="right-side">
       <div class="seat-grid-right">
         <div
@@ -25,6 +33,7 @@
           [ngClass]="seat === 0 ? 'seat-vacant' : 'seat-selected'"
           *ngFor="let seat of seatsArrayRight"
         >
+         <!--  initilizing seats based on backend data  -->
           <div class="seat-image">
             <img
               [src]="seat === 0 ? 'assets/sofa.png' : 'assets/sofa_booked.png'"
@@ -36,7 +45,11 @@
       </div>
     </div>
   </div>
+
+  <!--  divider  -->
   <div class="divider" role="separator" aria-label="Divider"></div>
+
+  <!--  Form layout  -->
   <div class="booking-form">
     <form (ngSubmit)="bookSeats()">
       <h2>Book your seats</h2>

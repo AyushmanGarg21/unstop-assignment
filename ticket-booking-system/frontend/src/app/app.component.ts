@@ -16,8 +16,8 @@ import { environment } from '../environments/environment';
 export class AppComponent implements OnInit {
   title = 'train-booking';
   numOfSeats: number = 0; // Input for number of seats to book
-  seatsArrayLeft: number[] = [];
-  seatsArrayRight: number[] = [];
+  seatsArrayLeft: number[] = []; // Array to store seat statuses for left side
+  seatsArrayRight: number[] = []; // Array to store seat statuses for right side
 
   http: any;
   constructor(http: HttpClient) { 
@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
     );
   }
 
-  // Validate number of seats to book
+  // Frontend Validation for number of seats to book
   bookSeatsValidation(): boolean {
     if (this.numOfSeats < 1) {
       alert('Please enter a valid number of seats to book.');
@@ -60,7 +60,7 @@ export class AppComponent implements OnInit {
     return true;
   }
 
-  // Book seats through the backend
+  // Book seats through the backend after validation
   bookSeats() {
     if (this.bookSeatsValidation()) {
       this.http.post(`${environment.apiUrl}/book`, { numOfSeats: this.numOfSeats }).subscribe(

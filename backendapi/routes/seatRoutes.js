@@ -3,6 +3,7 @@ const Seat = require('../models/seat');
 const router = express.Router();
 
 // to Initialize seats
+// This function is called just once to initialize 80 the seats in the database
 router.post('/initialize', async (req, res) => {
   const seats = [];
   for (let i = 1; i <= 80; i++) {
@@ -12,7 +13,7 @@ router.post('/initialize', async (req, res) => {
   res.send('Seats initialized');
 });
 
-
+// To get all the seats status.
 router.get('/seats', async (req, res) => {
   try {
     // Retrieve all seats from the database, ordered by seat number
@@ -29,15 +30,15 @@ router.get('/seats', async (req, res) => {
 router.post('/book', async (req, res) => {
   const { numOfSeats } = req.body;
 
+  //Validation
   if (numOfSeats < 1 || numOfSeats > 7) {
     return res.status(400).json({ message: 'Invalid number of seats. You can book between 1 to 7 seats.' });
   }
 
   try {
-    // Fetch all available seats in the train (sorted by seat number)
     const seats = await Seat.find().sort({ seatNumber: 1 });
 
-    // Group seats by rows (left 4 seats and right 3 seats per row)
+    // Group seats by rows according to the frontend layout
     const rows = [];
     for (let i = 0; i < 80; i += 7) {
       const leftSeats = seats.slice(i, i + 4);
@@ -45,23 +46,21 @@ router.post('/book', async (req, res) => {
       rows.push([...leftSeats, ...rightSeats]);
     }
 
-    // Try to find a row with enough consecutive available seats
+    // find a row for consecutive available seats
     let bookedSeats = [];
     for (const row of rows) {
       const availableSeatsInRow = row.filter(seat => !seat.isBooked);
 
       if (availableSeatsInRow.length >= numOfSeats) {
-        // Book seats in this row
         bookedSeats = availableSeatsInRow.slice(0, numOfSeats).map(seat => seat.seatNumber);
         break;
       }
     }
 
-    // If no single row had enough seats, book nearby seats across rows
+    // If no single row had enough seats,so now booking nearby seats
     if (bookedSeats.length < numOfSeats) {
       const remainingSeats = numOfSeats - bookedSeats.length;
 
-      // Flatten all available seats and pick remaining seats across rows
       const availableSeats = seats.filter(seat => !seat.isBooked && !bookedSeats.includes(seat.seatNumber));
       const additionalSeats = availableSeats.slice(0, remainingSeats).map(seat => seat.seatNumber);
       bookedSeats = [...bookedSeats, ...additionalSeats];
@@ -72,10 +71,8 @@ router.post('/book', async (req, res) => {
       return res.status(400).json({ message: 'Not enough seats available.' });
     }
 
-    // Mark the booked seats in the database
     await Seat.updateMany({ seatNumber: { $in: bookedSeats } }, { isBooked: true });
 
-    // Respond with booked seats
     res.status(200).json({ bookedSeats });
   } catch (error) {
     res.status(500).json({ message: error.message });
